@@ -23,5 +23,13 @@ module Redlock
     def unlock(lock_info)
       unlock_without_testing lock_info unless @testing_mode == :bypass
     end
+
+    class RedisInstance
+      def load_scripts
+        if @redis.respond_to?(:script)
+          @unlock_script_sha = @redis.script(:load, UNLOCK_SCRIPT)
+        end
+      end
+    end
   end
 end
