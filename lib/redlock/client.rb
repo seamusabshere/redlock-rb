@@ -84,8 +84,7 @@ module Redlock
           @redis  = Redis.new(connection)
         end
 
-        @unlock_script_sha = @redis.script(:load, UNLOCK_SCRIPT)
-        @lock_script_sha = @redis.script(:load, LOCK_SCRIPT)
+        load_scripts
       end
 
       def lock(resource, val, ttl)
@@ -96,6 +95,13 @@ module Redlock
         @redis.evalsha(@unlock_script_sha, keys: [resource], argv: [val])
       rescue
         # Nothing to do, unlocking is just a best-effort attempt.
+      end
+
+      private
+
+      def load_scripts
+        @unlock_script_sha = @redis.script(:load, UNLOCK_SCRIPT)
+        @lock_script_sha = @redis.script(:load, LOCK_SCRIPT)
       end
     end
 
