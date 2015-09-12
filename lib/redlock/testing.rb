@@ -26,9 +26,11 @@ module Redlock
 
     class RedisInstance
       def load_scripts
-        if @redis.respond_to?(:script)
+        begin
           @unlock_script_sha = @redis.script(:load, UNLOCK_SCRIPT)
           @lock_script_sha = @redis.script(:load, LOCK_SCRIPT)
+        rescue Redis::CommandError
+          # ignore
         end
       end
     end
